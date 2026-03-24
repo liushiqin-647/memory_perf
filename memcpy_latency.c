@@ -7,6 +7,19 @@
 #define CHUNK_SIZE 64
 #define ITERATIONS 1000
 
+static inline void st64b_copy(void *dst, void *src) {
+    __asm__ __volatile__ (
+        "ldp x0, x1, [%[src], #0]\n"
+        "ldp x2, x3, [%[src], #16]\n"
+        "ldp x4, x5, [%[src], #32]\n"
+        "ldp x6, x7, [%[src], #48]\n"
+        "st64b x0, x1, x2, x3, x4, x5, x6, x7, [%[dst]]\n"
+        :
+        : [dst]"r"(dst), [src]"r"(src)
+        : "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "memory"
+    );
+}
+
 int main(int argc, char *argv[]) {
     size_t total_length;
     char *src, *dst;
@@ -35,8 +48,8 @@ int main(int argc, char *argv[]) {
     clock_gettime(CLOCK_MONOTONIC, &start);
     for (int iter = 0; iter < ITERATIONS; iter++) {
         for (size_t i = 0; i < total_length / CHUNK_SIZE; i++) {
-            memcpy(dst + i * CHUNK_SIZE, src + i * CHUNK_SIZE, CHUNK_SIZE);
-            tmp = dst[i * CHUNK_SIZE];
+            st64b_copy(dst + i * CHUNK_SIZE, src + i * CHUNK_SIZE);
+            // tmp = dst[i * CHUNK_SIZE];
         }
     }
     clock_gettime(CLOCK_MONOTONIC, &end);

@@ -18,7 +18,8 @@ trap "rm -rf $tmpdir" EXIT
 
 for i in $(seq 1 $num_procs); do
     core=$((i - 1))
-    taskset -c $core /Users/liu/project/test/memcpy_bandwidth $length > $tmpdir/result_$i &
+    # taskset -c $core /Users/liu/project/test/memcpy_bandwidth $length > $tmpdir/result_$i &
+    /Users/liu/project/test/memcpy_bandwidth $length > $tmpdir/result_$i &
 done
 
 wait
@@ -29,6 +30,4 @@ for i in $(seq 1 $num_procs); do
     total_bandwidth=$(echo "$total_bandwidth + $bw" | bc)
 done
 
-avg_bandwidth=$(echo "scale=2; $total_bandwidth / $num_procs" | bc)
-
-echo "length: $length num_procs: $num_procs bandwidth: $avg_bandwidth GB/s"
+echo "length: $length num_procs: $num_procs bandwidth: $total_bandwidth GB/s"

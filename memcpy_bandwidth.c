@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/mman.h>
 
 #define ITERATIONS 1000
 
@@ -21,9 +22,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    src = aligned_alloc(64, length);
-    dst = aligned_alloc(64, length);
-    if (!src || !dst) {
+    src = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    dst = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (src == MAP_FAILED || dst == MAP_FAILED) {
         return 1;
     }
 
@@ -42,7 +43,7 @@ int main(int argc, char *argv[]) {
 
     printf("length: %zu bandwidth: %.2f GB/s\n", length, bandwidth);
 
-    free(src);
-    free(dst);
+    munmap(src, length);
+    munmap(dst, length);
     return 0;
 }

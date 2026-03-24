@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/mman.h>
 
 #define CHUNK_SIZE 64
 #define ITERATIONS 1000
@@ -23,9 +24,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    src = aligned_alloc(64, total_length);
-    dst = aligned_alloc(64, total_length);
-    if (!src || !dst) {
+    src = mmap(NULL, total_length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    dst = mmap(NULL, total_length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (src == MAP_FAILED || dst == MAP_FAILED) {
         return 1;
     }
 
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]) {
 
     printf("length: %zu latency: %.2f ns\n", total_length, total_time * 1e9);
 
-    free(src);
-    free(dst);
+    munmap(src, total_length);
+    munmap(dst, total_length);
     return 0;
 }

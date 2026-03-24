@@ -18,8 +18,7 @@ trap "rm -rf $tmpdir" EXIT
 
 for i in $(seq 1 $num_procs); do
     core=$((i - 1))
-    # taskset -c $core /Users/liu/project/test/memcpy_bandwidth $length > $tmpdir/result_$i &
-    /Users/liu/project/test/memcpy_bandwidth $length > $tmpdir/result_$i &
+    taskset -c $core /Users/liu/project/test/memcpy_bandwidth $length > $tmpdir/result_$i &
 done
 
 wait
